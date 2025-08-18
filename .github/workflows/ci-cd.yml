@@ -26,6 +26,9 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
         
+    - name: Make mvnw executable
+      run: chmod +x ./mvnw
+      
     - name: Run tests
       run: ./mvnw clean test
       
@@ -57,6 +60,9 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
         
+    - name: Make mvnw executable
+      run: chmod +x ./mvnw
+      
     - name: Build with Maven
       run: ./mvnw clean compile package -DskipTests
       
