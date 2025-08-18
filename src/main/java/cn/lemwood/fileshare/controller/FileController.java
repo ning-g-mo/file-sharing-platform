@@ -238,7 +238,7 @@ public class FileController {
         data.put("expireTime", fileInfo.getExpireTime().format(DATE_FORMATTER));
         data.put("downloadCount", fileInfo.getDownloadCount());
         data.put("downloadUrl", "/api/files/download/" + fileInfo.getFileKey());
-        data.put("shareUrl", "/share/" + fileInfo.getFileKey());
+        data.put("shareUrl", "/api/share/" + fileInfo.getFileKey());
         data.put("expired", fileInfo.isExpired());
         return data;
     }
