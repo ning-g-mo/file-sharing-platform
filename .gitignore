@@ -43,6 +43,3 @@ dist/
 .env
 .env.local
 .env.production
-
-# Maven wrapper jar (keep properties file)
-.mvn/wrapper/maven-wrapper.jar
