@@ -47,7 +47,7 @@ public class SystemMonitorService {
             long expiredSize = expiredFiles.stream().mapToLong(FileInfo::getFileSize).sum();
             
             // 磁盘空间信息
-            File uploadDir = new File(fileUploadConfig.getUploadPath());
+            File uploadDir = new File(fileUploadConfig.getUploadDirectory());
             long totalSpace = uploadDir.getTotalSpace();
             long freeSpace = uploadDir.getFreeSpace();
             long usedSpace = totalSpace - freeSpace;
@@ -98,7 +98,7 @@ public class SystemMonitorService {
             
             // 配置信息
             Map<String, Object> config = new HashMap<>();
-            config.put("uploadPath", fileUploadConfig.getUploadPath());
+            config.put("uploadPath", fileUploadConfig.getUpload());
             config.put("maxFileSize", fileUploadConfig.getMaxFileSize());
             config.put("maxFileSizeFormatted", formatFileSize(fileUploadConfig.getMaxFileSize()));
             config.put("allowedTypes", fileUploadConfig.getAllowedTypes());
@@ -124,7 +124,7 @@ public class SystemMonitorService {
             fileInfoRepository.count();
             
             // 检查上传目录
-            File uploadDir = new File(fileUploadConfig.getUploadPath());
+            File uploadDir = new File(fileUploadConfig.getUpload());
             if (!uploadDir.exists() || !uploadDir.canWrite()) {
                 return false;
             }
@@ -195,7 +195,7 @@ public class SystemMonitorService {
             cleanedFiles += expiredDeleted;
             
             // 2. 清理孤儿文件（数据库中不存在但物理文件存在）
-            File uploadDir = new File(fileUploadConfig.getUploadPath());
+            File uploadDir = new File(fileUploadConfig.getUploadDirectory());
             if (uploadDir.exists() && uploadDir.isDirectory()) {
                 File[] files = uploadDir.listFiles();
                 if (files != null) {

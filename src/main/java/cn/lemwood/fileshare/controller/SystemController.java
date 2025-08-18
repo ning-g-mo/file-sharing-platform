@@ -104,7 +104,7 @@ public class SystemController {
     /**
      * 手动清理过期文件
      */
-    @PostMapping("/clean-expired")
+    @org.springframework.web.bind.annotation.PostMapping("/clean-expired")
     public ResponseEntity<Map<String, Object>> cleanExpiredFiles() {
         Map<String, Object> response = new HashMap<>();
         
@@ -129,7 +129,7 @@ public class SystemController {
     /**
      * 优化存储空间
      */
-    @PostMapping("/optimize-storage")
+    @org.springframework.web.bind.annotation.PostMapping("/optimize-storage")
     public ResponseEntity<Map<String, Object>> optimizeStorage() {
         Map<String, Object> response = new HashMap<>();
         

@@ -84,7 +84,7 @@ public class FileController {
         if (fileInfo.isExpired()) {
             response.put("success", false);
             response.put("message", "文件已过期");
-            return ResponseEntity.gone().body(response);
+            return ResponseEntity.status(HttpStatus.GONE).body(response);
         }
         
         response.put("success", true);
