@@ -76,13 +76,7 @@ jobs:
     - name: Build with Maven
       run: ./mvnw clean compile package -DskipTests
       
-    - name: Build Docker image
-      run: |
-        echo "FROM openjdk:21-jre-slim" > Dockerfile
-        echo "COPY target/*.jar app.jar" >> Dockerfile
-        echo "EXPOSE 8080" >> Dockerfile
-        echo "ENTRYPOINT [\"java\", \"-jar\", \"/app.jar\"]" >> Dockerfile
-        docker build -t file-sharing-platform .
+
         
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
