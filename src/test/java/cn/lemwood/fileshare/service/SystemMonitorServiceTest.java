@@ -62,8 +62,9 @@ class SystemMonitorServiceTest {
         assertEquals("healthy", status.get("status"));
         assertTrue(status.containsKey("timestamp"));
         assertTrue(status.containsKey("files"));
-        assertTrue(status.containsKey("storage"));
+        assertTrue(status.containsKey("disk"));
         assertTrue(status.containsKey("memory"));
+        assertTrue(status.containsKey("config"));
         
         verify(fileInfoRepository).count();
         verify(fileInfoRepository).getTotalFileSize();
