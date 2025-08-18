@@ -18,6 +18,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
 
 /**
  * 系统监控服务测试类
@@ -41,8 +42,8 @@ class SystemMonitorServiceTest {
 
     @BeforeEach
     void setUp() {
-        when(fileUploadConfig.getUpload()).thenReturn(uploadConfig);
-        when(uploadConfig.getPath()).thenReturn(System.getProperty("java.io.tmpdir"));
+        lenient().when(fileUploadConfig.getUpload()).thenReturn(uploadConfig);
+        lenient().when(uploadConfig.getPath()).thenReturn(System.getProperty("java.io.tmpdir"));
     }
 
     @Test
