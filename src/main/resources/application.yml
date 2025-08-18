@@ -1,7 +1,7 @@
 server:
   port: 8080
   servlet:
-    context-path: /api
+    context-path: ${app.api.context-path:/api}
 
 spring:
   application:
@@ -37,6 +37,10 @@ spring:
       enabled: true
 
 # 自定义配置
+app:
+  api:
+    context-path: /api
+
 file:
   upload:
     path: ./uploads

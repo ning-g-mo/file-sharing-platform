@@ -5,6 +5,7 @@ import cn.lemwood.fileshare.service.FileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -38,6 +39,9 @@ public class ShareController {
 
     @Autowired
     private FileService fileService;
+    
+    @Value("${app.api.context-path:/api}")
+    private String apiContextPath;
 
     /**
      * 文件分享页面
@@ -66,7 +70,7 @@ public class ShareController {
         model.addAttribute("uploadTime", fileInfo.getUploadTime().format(DATE_FORMATTER));
         model.addAttribute("expireTime", fileInfo.getExpireTime().format(DATE_FORMATTER));
         model.addAttribute("downloadCount", fileInfo.getDownloadCount());
-        model.addAttribute("downloadUrl", "/api/files/download/" + fileKey);
+        model.addAttribute("downloadUrl", apiContextPath + "/files/download/" + fileKey);
         
         return "share";
     }
@@ -104,7 +108,7 @@ public class ShareController {
         fileData.put("uploadTime", fileInfo.getUploadTime().format(DATE_FORMATTER));
         fileData.put("expireTime", fileInfo.getExpireTime().format(DATE_FORMATTER));
         fileData.put("downloadCount", fileInfo.getDownloadCount());
-        fileData.put("downloadUrl", "/api/files/download/" + fileInfo.getFileKey());
+        fileData.put("downloadUrl", apiContextPath + "/files/download/" + fileInfo.getFileKey());
         
         response.put("success", true);
         response.put("data", fileData);
