@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件分享平台 - 24小时临时存储</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .main-container {
+            padding: 20px 0;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: none;
+        }
+        .upload-area {
+            border: 3px dashed #dee2e6;
+            border-radius: 15px;
+            padding: 50px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #f8f9fa;
+        }
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #e3f2fd;
+        }
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #e3f2fd;
+            transform: scale(1.02);
+        }
+        .upload-icon {
+            font-size: 4rem;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: bold;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .file-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .file-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+        }
+        .alert {
+            border-radius: 10px;
+        }
+        .stats-card {
+            background: rgba(255,255,255,0.9);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .header-title {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .feature-list {
+            color: white;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container main-container">
+            <!-- 头部标题 -->
+            <div class="header-title">
+                <h1><i class="bi bi-cloud-upload"></i> 文件分享平台</h1>
+                <p class="lead">安全、快速、临时的文件分享服务</p>
+            </div>
+
+            <!-- 系统统计 -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="stats-card text-center">
+                        <h3><i class="bi bi-files text-primary"></i> {{ stats.totalFiles }}</h3>
+                        <p class="mb-0">总文件数</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="stats-card text-center">
+                        <h3><i class="bi bi-hdd text-success"></i> {{ stats.totalSizeFormatted }}</h3>
+                        <p class="mb-0">总存储量</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 系统监控 -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-graph-up"></i> 系统统计
+                                <button class="btn btn-sm btn-outline-primary float-end" @click="loadSystemStatus" :disabled="loadingSystemStatus">
+                                    <i class="bi bi-arrow-clockwise" :class="{'spin': loadingSystemStatus}"></i>
+                                </button>
+                            </h5>
+                            <div class="row" v-if="!loadingSystemStatus">
+                                <div class="col-6">
+                                    <div class="text-center">
+                                        <h3 class="text-primary">{{ stats.totalFiles }}</h3>
+                                        <small class="text-muted">总文件数</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-center">
+                                        <h3 class="text-success">{{ stats.totalSizeFormatted }}</h3>
+                                        <small class="text-muted">总存储量</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-if="systemStatus" class="mt-3">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="text-center">
+                                            <h6 class="text-warning">{{ systemStatus.files.expiredFiles }}</h6>
+                                            <small class="text-muted">过期文件</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="text-center">
+                                            <h6 class="text-info">{{ systemStatus.disk.usagePercentage }}%</h6>
+                                            <small class="text-muted">磁盘使用率</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-if="loadingSystemStatus" class="text-center">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">加载中...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-tools"></i> 文件管理
+                            </h5>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-warning" @click="cleanExpiredFiles" :disabled="cleaningFiles">
+                                    <i class="bi bi-trash" :class="{'spin': cleaningFiles}"></i>
+                                    清理过期文件
+                                </button>
+                                <button class="btn btn-info" @click="optimizeStorage" :disabled="optimizingStorage">
+                                    <i class="bi bi-hdd" :class="{'spin': optimizingStorage}"></i>
+                                    优化存储空间
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- 左侧：文件上传 -->
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-upload"></i> 文件上传</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- 上传区域 -->
+                            <div class="upload-area" 
+                                 @click="triggerFileInput"
+                                 @dragover.prevent="handleDragOver"
+                                 @dragleave.prevent="handleDragLeave"
+                                 @drop.prevent="handleDrop"
+                                 :class="{ dragover: isDragOver }">
+                                <div class="upload-icon">
+                                    <i class="bi bi-cloud-upload"></i>
+                                </div>
+                                <h4>点击或拖拽文件到此处</h4>
+                                <p class="text-muted">支持最大100MB的文件上传</p>
+                                <p class="text-muted">文件将在24小时后自动删除</p>
+                            </div>
+                            
+                            <input type="file" 
+                                   ref="fileInput" 
+                                   @change="handleFileSelect" 
+                                   style="display: none" 
+                                   multiple>
+                            
+                            <!-- 上传进度 -->
+                            <div v-if="uploadProgress > 0" class="mt-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>上传进度</span>
+                                    <span>{{ uploadProgress }}%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar" 
+                                         :style="{ width: uploadProgress + '%' }"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- 消息提示 -->
+                            <div v-if="message" 
+                                 :class="['alert', messageType === 'success' ? 'alert-success' : 'alert-danger']" 
+                                 class="mt-3">
+                                {{ message }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 功能特点 -->
+                    <div class="feature-list">
+                        <h5><i class="bi bi-star"></i> 平台特点</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-check-circle text-success"></i> 无需注册，即传即用</li>
+                            <li><i class="bi bi-check-circle text-success"></i> 24小时自动删除，保护隐私</li>
+                            <li><i class="bi bi-check-circle text-success"></i> 支持多种文件格式</li>
+                            <li><i class="bi bi-check-circle text-success"></i> 生成分享链接，方便传输</li>
+                            <li><i class="bi bi-check-circle text-success"></i> 实时下载统计</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 右侧：文件列表 -->
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="bi bi-list"></i> 我的文件</h5>
+                            <button class="btn btn-light btn-sm" @click="loadMyFiles">
+                                <i class="bi bi-arrow-clockwise"></i> 刷新
+                            </button>
+                        </div>
+                        <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+                            <div v-if="myFiles.length === 0" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                                <p class="mt-2">暂无文件</p>
+                            </div>
+                            
+                            <div v-for="file in myFiles" :key="file.fileKey" class="file-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">
+                                            <i class="bi bi-file-earmark"></i>
+                                            {{ file.originalName }}
+                                        </h6>
+                                        <small class="text-muted">
+                                            <i class="bi bi-hdd"></i> {{ file.fileSizeFormatted }} | 
+                                            <i class="bi bi-calendar"></i> {{ file.uploadTime }} | 
+                                            <i class="bi bi-download"></i> {{ file.downloadCount }}次
+                                        </small>
+                                        <br>
+                                        <small class="text-warning">
+                                            <i class="bi bi-clock"></i> 过期时间: {{ file.expireTime }}
+                                        </small>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-2">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button class="btn btn-outline-primary" 
+                                                @click="copyShareLink(file.shareUrl)">
+                                            <i class="bi bi-share"></i> 复制链接
+                                        </button>
+                                        <a :href="file.downloadUrl" 
+                                           class="btn btn-outline-success" 
+                                           target="_blank">
+                                            <i class="bi bi-download"></i> 下载
+                                        </a>
+                                        <button class="btn btn-outline-danger" 
+                                                @click="deleteFile(file.fileKey)">
+                                            <i class="bi bi-trash"></i> 删除
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 最近文件 -->
+                    <div class="card mt-3">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="bi bi-clock-history"></i> 最近上传</h5>
+                        </div>
+                        <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                            <div v-if="recentFiles.length === 0" class="text-center text-muted py-3">
+                                <p class="mb-0">暂无最近文件</p>
+                            </div>
+                            
+                            <div v-for="file in recentFiles" :key="file.fileKey" class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                <div>
+                                    <small class="fw-bold">{{ file.originalName }}</small><br>
+                                    <small class="text-muted">{{ file.fileSizeFormatted }} | {{ file.uploadTime }}</small>
+                                </div>
+                                <small class="text-muted">
+                                    <i class="bi bi-download"></i> {{ file.downloadCount }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const { createApp } = Vue;
+        
+        createApp({
+            data() {
+                return {
+                    isDragOver: false,
+                    uploadProgress: 0,
+                    message: '',
+                    messageType: 'success',
+                    myFiles: [],
+                    recentFiles: [],
+                    stats: {
+                        totalFiles: 0,
+                        totalSizeFormatted: '0 B'
+                    },
+                    systemStatus: null,
+                    loadingSystemStatus: false,
+                    cleaningFiles: false,
+                    optimizingStorage: false
+                }
+            },
+            mounted() {
+                this.loadMyFiles();
+                this.loadRecentFiles();
+                this.loadStats();
+                this.loadSystemStatus();
+            },
+            methods: {
+                triggerFileInput() {
+                    this.$refs.fileInput.click();
+                },
+                
+                handleDragOver(e) {
+                    this.isDragOver = true;
+                },
+                
+                handleDragLeave(e) {
+                    this.isDragOver = false;
+                },
+                
+                handleDrop(e) {
+                    this.isDragOver = false;
+                    const files = e.dataTransfer.files;
+                    this.uploadFiles(files);
+                },
+                
+                handleFileSelect(e) {
+                    const files = e.target.files;
+                    this.uploadFiles(files);
+                },
+                
+                async uploadFiles(files) {
+                    if (files.length === 0) return;
+                    
+                    for (let file of files) {
+                        await this.uploadFile(file);
+                    }
+                },
+                
+                async uploadFile(file) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    
+                    try {
+                        this.uploadProgress = 0;
+                        this.message = '';
+                        
+                        const response = await axios.post('/api/files/upload', formData, {
+                            headers: {
+                                'Content-Type': 'multipart/form-data'
+                            },
+                            onUploadProgress: (progressEvent) => {
+                                this.uploadProgress = Math.round(
+                                    (progressEvent.loaded * 100) / progressEvent.total
+                                );
+                            }
+                        });
+                        
+                        if (response.data.success) {
+                            this.message = `文件 "${file.name}" 上传成功！`;
+                            this.messageType = 'success';
+                            this.loadMyFiles();
+                            this.loadRecentFiles();
+                            this.loadStats();
+                        } else {
+                            throw new Error(response.data.message);
+                        }
+                    } catch (error) {
+                        this.message = error.response?.data?.message || error.message || '上传失败';
+                        this.messageType = 'error';
+                    } finally {
+                        this.uploadProgress = 0;
+                        setTimeout(() => {
+                            this.message = '';
+                        }, 5000);
+                    }
+                },
+                
+                async loadMyFiles() {
+                    try {
+                        const response = await axios.get('/api/files/my-files');
+                        if (response.data.success) {
+                            this.myFiles = response.data.data;
+                        }
+                    } catch (error) {
+                        console.error('加载文件列表失败:', error);
+                    }
+                },
+                
+                async loadRecentFiles() {
+                    try {
+                        const response = await axios.get('/api/files/recent');
+                        if (response.data.success) {
+                            this.recentFiles = response.data.data;
+                        }
+                    } catch (error) {
+                        console.error('加载最近文件失败:', error);
+                    }
+                },
+                
+                async loadStats() {
+                    try {
+                        const response = await axios.get('/api/files/stats');
+                        if (response.data.success) {
+                            this.stats = response.data.data;
+                        }
+                    } catch (error) {
+                        console.error('加载统计信息失败:', error);
+                    }
+                },
+                
+                async deleteFile(fileKey) {
+                    if (!confirm('确定要删除这个文件吗？')) {
+                        return;
+                    }
+                    
+                    try {
+                        const response = await axios.delete(`/api/files/${fileKey}`);
+                        if (response.data.success) {
+                            this.message = '文件删除成功';
+                            this.messageType = 'success';
+                            this.loadMyFiles();
+                            this.loadRecentFiles();
+                            this.loadStats();
+                        } else {
+                            throw new Error(response.data.message);
+                        }
+                    } catch (error) {
+                        this.message = error.response?.data?.message || '删除失败';
+                        this.messageType = 'error';
+                    } finally {
+                        setTimeout(() => {
+                            this.message = '';
+                        }, 3000);
+                    }
+                },
+                
+                copyShareLink(shareUrl) {
+                    const fullUrl = window.location.origin + shareUrl;
+                    navigator.clipboard.writeText(fullUrl).then(() => {
+                        this.message = '分享链接已复制到剪贴板';
+                        this.messageType = 'success';
+                        setTimeout(() => {
+                            this.message = '';
+                        }, 3000);
+                    }).catch(() => {
+                        // 降级方案
+                        const textArea = document.createElement('textarea');
+                        textArea.value = fullUrl;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        
+                        this.message = '分享链接已复制到剪贴板';
+                        this.messageType = 'success';
+                        setTimeout(() => {
+                            this.message = '';
+                        }, 3000);
+                    });
+                },
+                
+                async loadSystemStatus() {
+                     this.loadingSystemStatus = true;
+                     try {
+                         const response = await axios.get('/api/system/status');
+                         this.systemStatus = response.data;
+                     } catch (error) {
+                         console.error('加载系统状态失败:', error);
+                     } finally {
+                         this.loadingSystemStatus = false;
+                     }
+                 },
+                
+                async cleanExpiredFiles() {
+                    if (!confirm('确定要清理所有过期文件吗？')) {
+                        return;
+                    }
+                    
+                    this.cleaningFiles = true;
+                    try {
+                        const response = await axios.post('/api/system/clean-expired');
+                        if (response.data.success) {
+                            this.message = `清理完成，删除了 ${response.data.data.deletedCount} 个过期文件`;
+                            this.messageType = 'success';
+                            this.loadStats();
+                            this.loadSystemStatus();
+                        } else {
+                            throw new Error(response.data.message);
+                        }
+                    } catch (error) {
+                        this.message = error.response?.data?.message || '清理失败';
+                        this.messageType = 'error';
+                    } finally {
+                        this.cleaningFiles = false;
+                        setTimeout(() => {
+                            this.message = '';
+                        }, 5000);
+                    }
+                },
+                
+                async optimizeStorage() {
+                    if (!confirm('确定要优化存储空间吗？这可能需要一些时间。')) {
+                        return;
+                    }
+                    
+                    this.optimizingStorage = true;
+                    try {
+                        const response = await axios.post('/api/system/optimize-storage');
+                        if (response.data.success) {
+                            this.message = `优化完成，释放了 ${response.data.data.freedSpace} 的存储空间`;
+                            this.messageType = 'success';
+                            this.loadStats();
+                            this.loadSystemStatus();
+                        } else {
+                            throw new Error(response.data.message);
+                        }
+                    } catch (error) {
+                        this.message = error.response?.data?.message || '优化失败';
+                        this.messageType = 'error';
+                    } finally {
+                        this.optimizingStorage = false;
+                        setTimeout(() => {
+                            this.message = '';
+                        }, 5000);
+                    }
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
