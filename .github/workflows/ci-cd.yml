@@ -38,7 +38,7 @@ jobs:
       run: ./mvnw clean test
       
     - name: Upload test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: test-results
@@ -85,7 +85,7 @@ jobs:
         docker build -t file-sharing-platform .
         
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: jar-artifact
         path: target/*.jar
@@ -120,7 +120,7 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Download build artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: jar-artifact
         path: target/
