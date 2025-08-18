@@ -88,4 +88,21 @@ public class FileUploadConfig {
     public void setCleanup(Cleanup cleanup) {
         this.cleanup = cleanup;
     }
+
+    // 便捷方法，用于向后兼容
+    public long getMaxFileSize() {
+        return upload.getMaxSize();
+    }
+
+    public String getAllowedTypes() {
+        return upload.getAllowedTypes();
+    }
+
+    public long getCleanupInterval() {
+        return cleanup.getInterval();
+    }
+
+    public int getFileRetentionHours() {
+        return cleanup.getRetentionHours();
+    }
 }
