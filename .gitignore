@@ -1,30 +1,91 @@
-# Maven
-target/
-*.jar
-*.war
-*.ear
+# Compiled class file
 *.class
 
-# IDE
-.idea/
+# Log file
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# virtual machine crash logs
+hs_err_pid*
+replay_pid*
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Gradle
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# IntelliJ IDEA
+.idea
+*.iws
 *.iml
 *.ipr
-*.iws
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+# Eclipse
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# VS Code
 .vscode/
 
-# OS
+# Mac
 .DS_Store
+
+# Windows
 Thumbs.db
+ehthumbs.db
+Desktop.ini
 
-# Logs
-*.log
-logs/
-
-# Spring Boot
-spring.log
-
-# H2 Database
+# Application specific
+uploads/
+file-storage/
 *.db
+*.h2.db
 *.trace.db
 *.lock.db
 
@@ -32,14 +93,37 @@ spring.log
 *.tmp
 *.temp
 
-# Node modules (if any)
-node_modules/
-
-# Build output
-build/
-dist/
-
 # Environment variables
 .env
 .env.local
-.env.production
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Node modules (if any)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Spring Boot
+spring.log
+
+# Application logs
+logs/
+*.log.*
+
+# H2 Database files
+*.mv.db
+*.trace.db
+*.lock.db
+
+# Backup files
+*.bak
+*.backup
+
+# System files
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*

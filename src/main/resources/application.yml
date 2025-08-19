@@ -35,6 +35,21 @@ spring:
       max-file-size: 100MB
       max-request-size: 100MB
       enabled: true
+  
+  # 错误处理配置
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: true
+      static-locations: classpath:/static/
+  
+  # 错误页面配置
+  error:
+    whitelabel:
+      enabled: false
+    include-message: always
+    include-binding-errors: always
 
 # 自定义配置
 app:

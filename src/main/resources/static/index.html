@@ -528,7 +528,7 @@
                 async loadSystemStatus() {
                      this.loadingSystemStatus = true;
                      try {
-                         const response = await axios.get('/api/system/status');
+                         const response = await axios.get('/api/api/system/status');
                          this.systemStatus = response.data;
                      } catch (error) {
                          console.error('加载系统状态失败:', error);
@@ -544,7 +544,7 @@
                     
                     this.cleaningFiles = true;
                     try {
-                        const response = await axios.post('/api/system/clean-expired');
+                        const response = await axios.post('/api/api/system/clean-expired');
                         if (response.data.success) {
                             this.message = `清理完成，删除了 ${response.data.data.deletedCount} 个过期文件`;
                             this.messageType = 'success';
@@ -571,7 +571,7 @@
                     
                     this.optimizingStorage = true;
                     try {
-                        const response = await axios.post('/api/system/optimize-storage');
+                        const response = await axios.post('/api/api/system/optimize-storage');
                         if (response.data.success) {
                             this.message = `优化完成，释放了 ${response.data.data.freedSpace} 的存储空间`;
                             this.messageType = 'success';
