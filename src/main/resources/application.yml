@@ -7,27 +7,11 @@ spring:
   application:
     name: file-share-platform
   
-  # 数据库配置
-  datasource:
-    url: jdbc:h2:mem:fileshare
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: 
+  # 数据库配置 - 使用独立配置文件
+  # 数据源配置由 DatabaseConfig 类管理
   
-  # JPA配置
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-  
-  # H2控制台配置
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+  # JPA配置 - 由 JpaConfig 类动态管理
+  # 数据库方言和其他JPA属性根据数据库类型自动配置
   
   # 文件上传配置
   servlet:

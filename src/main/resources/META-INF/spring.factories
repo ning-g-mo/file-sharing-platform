@@ -1,0 +1,2 @@
+# Spring Boot Auto Configuration
+org.springframework.boot.env.EnvironmentPostProcessor=cn.lemwood.fileshare.config.ExternalConfigLoader

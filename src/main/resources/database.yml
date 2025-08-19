@@ -1,0 +1,79 @@
+# 数据库配置文件
+# 支持多环境配置：开发、测试、生产
+# 支持多种数据库类型：SQLite、MySQL
+
+# 默认配置 - SQLite
+database:
+  default:
+    type: sqlite
+    url: jdbc:sqlite:./data/fileshare.db
+    driver-class-name: org.sqlite.JDBC
+    
+  # 开发环境配置 - SQLite
+  development:
+    type: sqlite
+    url: jdbc:sqlite:./data/dev-fileshare.db
+    driver-class-name: org.sqlite.JDBC
+    
+  # 开发环境配置 - MySQL
+  development-mysql:
+    type: mysql
+    url: jdbc:mysql://localhost:3306/fileshare_dev?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: password
+    
+  # 测试环境配置 - SQLite
+  test:
+    type: sqlite
+    url: jdbc:sqlite:./data/test-fileshare.db
+    driver-class-name: org.sqlite.JDBC
+    
+  # 测试环境配置 - MySQL
+  test-mysql:
+    type: mysql
+    url: jdbc:mysql://localhost:3306/fileshare_test?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: password
+    
+  # 生产环境配置 - SQLite
+  production:
+    type: sqlite
+    url: jdbc:sqlite:./data/prod-fileshare.db
+    driver-class-name: org.sqlite.JDBC
+    
+  # 生产环境配置 - MySQL
+  production-mysql:
+    type: mysql
+    url: jdbc:mysql://localhost:3306/fileshare_prod?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:password}
+    
+# JPA/Hibernate 配置 - 根据数据库类型自动选择方言
+jpa:
+  hibernate:
+    ddl-auto: update
+  show-sql: false
+  properties:
+    hibernate:
+      format_sql: true
+      use_sql_comments: true
+      
+# 数据库方言配置
+dialects:
+  sqlite: org.sqlite.hibernate.dialect.SQLiteDialect
+  mysql: org.hibernate.dialect.MySQL8Dialect
+      
+# 数据库连接池配置
+connection-pool:
+  initial-size: 5
+  max-active: 20
+  max-idle: 10
+  min-idle: 5
+  max-wait: 60000
+  validation-query: SELECT 1
+  test-on-borrow: true
+  test-while-idle: true
+  time-between-eviction-runs-millis: 60000
