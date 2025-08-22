@@ -43,13 +43,23 @@ public class DatabaseConfig {
         // 确定配置前缀
         String configPrefix = "database." + getEffectiveProfile();
         
-        // 获取数据库配置
+        // 获取数据库配置，提供默认值
         String url = env.getProperty(configPrefix + ".url", 
-                                   env.getProperty("database.default.url"));
+                                   env.getProperty("database.default.url", "jdbc:sqlite:./data/fileshare.db"));
         String driverClassName = env.getProperty(configPrefix + ".driver-class-name", 
-                                               env.getProperty("database.default.driver-class-name"));
+                                               env.getProperty("database.default.driver-class-name", "org.sqlite.JDBC"));
         String username = env.getProperty(configPrefix + ".username");
         String password = env.getProperty(configPrefix + ".password");
+        
+        // 验证必要的配置
+        if (url == null || url.trim().isEmpty()) {
+            throw new IllegalStateException("数据库URL配置不能为空，配置前缀: " + configPrefix);
+        }
+        if (driverClassName == null || driverClassName.trim().isEmpty()) {
+            throw new IllegalStateException("数据库驱动类名配置不能为空，配置前缀: " + configPrefix);
+        }
+        
+        System.out.println("使用数据库配置 - URL: " + url + ", Driver: " + driverClassName);
         
         // 确保数据库文件目录存在（仅对SQLite）
         ensureDatabaseDirectoryExists(url);
