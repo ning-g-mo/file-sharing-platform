@@ -10,7 +10,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.annotation.PostConstruct;
+
 import javax.sql.DataSource;
 import java.io.File;
 import java.nio.file.Paths;
@@ -25,31 +25,12 @@ public class DatabaseConfig {
     @Autowired
     private Environment env;
 
-    @Value("${spring.profiles.active:default}")
-    private String activeProfile;
-
     /**
-     * 手动加载配置文件
+     * 获取当前激活的配置文件
      */
-    @PostConstruct
-    public void loadConfiguration() {
-        try {
-            // 尝试加载外部配置文件
-            File externalConfig = new File("./config/database.yml");
-            if (externalConfig.exists()) {
-                System.out.println("使用外部配置文件: " + externalConfig.getAbsolutePath());
-                loadYamlConfiguration(externalConfig);
-            } else {
-                System.out.println("外部配置文件不存在，使用内置配置文件");
-            }
-        } catch (Exception e) {
-            System.err.println("加载外部配置文件失败: " + e.getMessage());
-        }
-    }
-
-    private void loadYamlConfiguration(File configFile) {
-        // 这里可以添加自定义的配置加载逻辑
-        // 由于Spring的限制，我们主要通过Environment来读取配置
+    private String getActiveProfile() {
+        String profile = env.getProperty("spring.profiles.active");
+        return profile != null ? profile : "default";
     }
 
     /**
@@ -93,11 +74,12 @@ public class DatabaseConfig {
      * 获取有效的配置环境
      */
     private String getEffectiveProfile() {
-        if ("dev".equals(activeProfile) || "development".equals(activeProfile)) {
+        String profile = getActiveProfile();
+        if ("dev".equals(profile) || "development".equals(profile)) {
             return "development";
-        } else if ("test".equals(activeProfile)) {
+        } else if ("test".equals(profile)) {
             return "test";
-        } else if ("prod".equals(activeProfile) || "production".equals(activeProfile)) {
+        } else if ("prod".equals(profile) || "production".equals(profile)) {
             return "production";
         }
         return "default";
